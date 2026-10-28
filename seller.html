@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vendeur — Blue Detected</title><link rel="icon" href="/logo.png"><link rel="stylesheet" href="/style.css">
+<style>.p{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;margin:16px 0}.r{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}label{font-size:13px;color:var(--mut)}
+pre{background:rgba(3,14,60,.7);border:1px solid var(--line);border-radius:8px;padding:14px;white-space:pre-wrap;font:13px Consolas,monospace;min-height:60px}h1{font-size:26px;margin:36px 0 4px}</style></head>
+<body class="glow"><nav class="nav"><div class="wrap"><a class="logo" href="/"><img src="/logo.png" alt="">Blue Detected</a><span class="sp"></span><span class="mut" style="font-size:13px">Espace vendeur</span></div></nav>
+<main class="wrap"><h1>Clés d'abonnement</h1><p class="mut">Générez, désactivez ou déliez les clés de vos clients.</p>
+<div class="p"><label>Mot de passe vendeur</label><div class="r"><input id="t" type="password" placeholder="ADMIN_TOKEN" style="width:260px"></div></div>
+<div class="p"><b>Generate des clés</b><div class="r"><label>Durée (jours)</label><input id="d" value="30" size="4"><label>Nombre</label><input id="c" value="1" size="3"><label>Client</label><input id="l" placeholder="Name du client"><button class="btn" onclick="mk()">Generate</button><button class="btn ghost" onclick="ls()">Voir toutes les clés</button></div></div>
+<div class="p"><b>Gérer une clé</b><div class="r"><input id="k" size="24" placeholder="PCK-XXXX-XXXX-XXXX"><button class="btn ghost" onclick="act('revoke')">Désactiver</button><button class="btn ghost" onclick="act('unbind')">Délier du compte Discord</button></div></div>
+<pre id="o" role="status" aria-live="polite">Connectez-vous avec votre jeton vendeur pour commencer.</pre></main>
+<script>
+const byId=(id)=>document.getElementById(id);
+const headers=()=>({'Content-Type':'application/json','x-admin-token':byId('t').value.trim()});
+async function request(path,options={}){
+ if(!byId('t').value.trim())throw new Error('Saisissez le jeton vendeur configuré sur le serveur.');
+ const response=await fetch(path,{...options,headers:{...headers(),...(options.headers||{})}});
+ const data=await response.json().catch(()=>({}));
+ if(!response.ok)throw new Error(data.error||`Erreur HTTP ${response.status}`);
+ return data;
+}
+async function run(action){
+ const output=byId('o');output.textContent='Requête en cours…';
+ try{output.textContent=await action()}
+ catch(error){output.textContent=`Échec : ${error.message}`}
+}
+async function mk(){return run(async()=>{
+ const days=Number(byId('d').value),count=Number(byId('c').value);
+ if(!Number.isInteger(days)||days<1||days>3650||!Number.isInteger(count)||count<1||count>100)throw new Error('Durée : 1–3650 days. Nombre : 1–100.');
+ const data=await request('/seller/create',{method:'POST',body:JSON.stringify({days,count,label:byId('l').value})});
+ return `Clés créées (${data.days} jours). Copiez-les maintenant; elles ne seront pas réaffichées :\n${data.keys.join('\n')}`;
+})}
+async function ls(){return run(async()=>{
+ const data=await request('/seller/list');
+ if(!Array.isArray(data))throw new Error(data.error||'Réponse serveur invalide.');
+ return data.map(item=>`${item.key} | ${item.days} j | ${item.label||'-'} | ${item.revoked?'DÉSACTIVÉE':item.expiresAt?'expire le '+new Date(item.expiresAt).toLocaleDateString():'non activée'} | Discord : ${item.ownerName||'-'} | ${item.checks} checks`).join('\n')||'Aucune clé créée.';
+})}
+async function act(action){return run(async()=>{
+ const key=byId('k').value.trim().toUpperCase();
+ if(!/^PCK-(?:[A-F0-9]{4}-){2}[A-F0-9]{4}$/.test(key))throw new Error('Format attendu : PCK-XXXX-XXXX-XXXX.');
+ const data=await request('/seller/'+action,{method:'POST',body:JSON.stringify({key})});
+ return data.ok?'Opération terminée.':data.error||'Le serveur a refusé la requête.';
+})}
+</script></body></html>
