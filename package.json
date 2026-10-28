@@ -17,7 +17,8 @@
     "express-rate-limit": "^7.5.0",
     "dotenv": "^16.4.7",
     "helmet": "^8.0.0",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "serverless-http": "^3.2.0"
   },
   "devDependencies": {
     "pg-mem": "^3.0.14"

@@ -1,0 +1,18 @@
+Blue Detected — final package notes
+
+Dashboard:
+- ALL, EXE DOWNLOAD, and EXE LOG filters are shown alongside one another.
+- EXE DOWNLOAD groups browser download-history findings for .exe downloads.
+- EXE LOG groups execution evidence from available Windows artifacts such as Prefetch, PCA, and BAM.
+
+Scanner:
+- Download findings and execution evidence use the exact category labels expected by the dashboard.
+- The scanner includes an exclusion against classifying files inside the Windows directory as cheat loaders based on filename alone.
+
+Limitations:
+- Windows does not retain a universal record of every download or every EXE launch.
+- Browser download history may be unavailable or incomplete; Windows execution artifacts depend on settings, retention, and permissions.
+- Filename matches are indicators, not proof of cheating. Review path, publisher/signature, hash, and evidence source.
+- This package reads available artifacts and does not disable or bypass Microsoft Defender.
+
+Build the native Windows Forms app using PCCheck-Lite/build.bat on Windows. Verify API/site settings in PCCheck-Lite/server.txt before building.

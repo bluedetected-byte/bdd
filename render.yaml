@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: blue-detected
+    runtime: node
+    rootDir: server
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "1"
+      - key: ADMIN_TOKEN
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: BASE_URL
+        sync: false
+      - key: DISCORD_CLIENT_ID
+        sync: false
+      - key: DISCORD_CLIENT_SECRET
+        sync: false
+      - key: RETENTION_DAYS
+        value: "30"
+      - key: MAX_ACTIVE_CODES
+        value: "3"
