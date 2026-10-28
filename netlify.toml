@@ -3,6 +3,8 @@
   publish = "public"
   functions = "netlify/functions"
 
+[build.environment]
+  SECRETS_SCAN_OMIT_KEYS = "NODE_ENV,TRUST_PROXY,RETENTION_DAYS,MAX_ACTIVE_CODES,GLOBAL_RATE_LIMIT_PER_MINUTE,API_RATE_LIMIT_PER_MINUTE,SELLER_RATE_LIMIT_PER_10_MINUTES,MAX_PENDING_WRITES,BASE_URL,DOWNLOAD_URL"
 [functions]
   node_bundler = "esbuild"
 
